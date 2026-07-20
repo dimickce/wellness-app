@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Sammy's Plan">
+<title>Claudia's Wellness Plan</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --teal: #1D9E75;
+    --teal-light: #E1F5EE;
+    --teal-dark: #0F6E56;
+    --teal-deep: #085041;
+    --amber: #EF9F27;
+    --amber-light: #FAEEDA;
+    --amber-dark: #854F0B;
+    --purple: #7F77DD;
+    --purple-light: #EEEDFE;
+    --purple-dark: #534AB7;
+    --blue: #378ADD;
+    --blue-light: #E6F1FB;
+    --blue-dark: #185FA5;
+    --coral: #D85A30;
+    --coral-light: #FAECE7;
+    --coral-dark: #993C1D;
+    --bg: #FAFAF8;
+    --surface: #FFFFFF;
+    --border: rgba(0,0,0,0.09);
+    --text: #1a1a18;
+    --text-muted: #666660;
+    --text-hint: #999990;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  html, body { height: 100%; background: var(--bg); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif; color: var(--text); overflow: hidden; }
+
+  /* Header */
+  .header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 14px 18px 10px; position: sticky; top: 0; z-index: 10; }
+  .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .header-title { font-size: 17px; font-weight: 600; color: var(--text); letter-spacing: -0.3px; }
+  .header-sub { font-size: 12px; color: var(--text-muted); }
+  .tab-scroll { display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
+  .tab-scroll::-webkit-scrollbar { display: none; }
+  .tab { flex-shrink: 0; padding: 6px 13px; border-radius: 20px; border: 0.5px solid var(--border); background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .tab.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+  /* Scroll area */
+  .scroll-area { height: calc(100vh - 110px); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 16px 32px; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* Cards */
+  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 12px; }
+  .card-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 2px; letter-spacing: -0.2px; }
+  .card-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+  .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .icon-circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+
+  /* Banner */
+  .banner { background: var(--teal-light); border-radius: var(--radius); padding: 13px 15px; margin-bottom: 12px; display: flex; gap: 10px; align-items: flex-start; }
+  .banner-star { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .banner-text { font-size: 13px; color: var(--teal-deep); line-height: 1.5; }
+  .banner-text strong { font-weight: 600; }
+
+  /* Stretch items */
+  .stretch-item { border-bottom: 0.5px solid var(--border); padding: 11px 0; }
+  .stretch-item:first-child { padding-top: 0; }
+  .stretch-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .stretch-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; display: flex; align-items: flex-start; gap: 5px; }
+  .stretch-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); flex-shrink: 0; margin-top: 5px; }
+  .stretch-desc { font-size: 13px; color: var(--text-muted); line-height: 1.55; margin-bottom: 8px; }
+  .timer-row { display: flex; align-items: center; gap: 8px; }
+  .timer-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--teal); color: var(--teal); background: transparent; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .timer-btn.running { background: var(--teal); color: #fff; }
+  .timer-btn.done { background: var(--teal-light); color: var(--teal-dark); border-color: var(--teal-light); }
+  .timer-display { font-size: 13px; font-weight: 600; color: var(--teal); }
+
+  /* Day grid */
+  .day-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .day-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; }
+  .day-card.highlight { border-color: var(--teal); }
+  .day-label { font-size: 10px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+  .day-activity { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .day-card.highlight .day-activity { color: var(--teal-dark); }
+  .day-note { font-size: 11px; color: var(--text-hint); }
+
+  /* Pills */
+  .pill-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .pill { padding: 5px 10px; border-radius: 20px; font-size: 12px; background: #F0EEE8; color: var(--text-muted); font-weight: 500; }
+
+  /* Checklist */
+  .checklist { list-style: none; }
+  .checklist li { display: flex; gap: 8px; align-items: flex-start; padding: 8px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; color: var(--text); line-height: 1.5; }
+  .checklist li:last-child { border-bottom: none; padding-bottom: 0; }
+  .check-dot { width: 18px; height: 18px; border-radius: 50%; background: var(--teal-light); border: 1.5px solid var(--teal); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .check-dot::after { content: '✓'; font-size: 10px; color: var(--teal); font-weight: 700; }
+
+  /* Sammy quote */
+  .sammy-tip { border-left: 2.5px solid var(--teal); padding: 6px 10px; margin: 10px 0; background: var(--teal-light); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .sammy-tip p { font-size: 12px; color: var(--teal-deep); line-height: 1.55; font-style: italic; }
+
+  /* Section label */
+  .section-label { font-size: 10px; font-weight: 700; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.08em; margin: 14px 0 6px; }
+
+  /* Metric cards */
+  .metric-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .metric-card { background: #F0EEE8; border-radius: var(--radius-sm); padding: 10px 10px 8px; }
+  .metric-label { font-size: 10px; color: var(--text-muted); margin-bottom: 3px; font-weight: 500; }
+  .metric-value { font-size: 20px; font-weight: 600; color: var(--text); }
+  .metric-unit { font-size: 10px; color: var(--text-hint); font-weight: 400; }
+
+  /* Tip box */
+  .tip-box { background: #F0EEE8; border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px; }
+  .tip-box p { font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+
+  /* Fuel badge */
+  .meal-badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-bottom: 4px; }
+  .badge-teal { background: var(--teal-light); color: var(--teal-dark); }
+  .badge-amber { background: var(--amber-light); color: var(--amber-dark); }
+  .badge-purple { background: var(--purple-light); color: var(--purple-dark); }
+
+  /* Divider */
+  .divider { height: 0.5px; background: var(--border); margin: 10px 0; }
+
+  /* Big question */
+  .big-q { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.55; padding: 8px 0 6px; letter-spacing: -0.2px; }
+
+  /* Star badge */
+  .star-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; background: #FFF3CC; color: #856B00; font-size: 11px; font-weight: 600; margin-left: 6px; }
+
+  /* Tracker */
+  .tracker-date { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 14px; }
+  .habit-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; border-bottom: 0.5px solid var(--border); cursor: pointer; user-select: none; -webkit-user-select: none; }
+  .habit-row:last-child { border-bottom: none; }
+  .habit-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+  .habit-emoji { font-size: 18px; width: 26px; text-align: center; flex-shrink: 0; }
+  .habit-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .habit-note { font-size: 11px; color: var(--text-hint); margin-top: 1px; }
+  .habit-check { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border); background: transparent; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .habit-check.checked { background: var(--teal); border-color: var(--teal); }
+  .habit-check.checked::after { content: '✓'; color: #fff; font-size: 13px; font-weight: 700; }
+  .today-score { display: flex; align-items: center; gap: 10px; background: var(--teal-light); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px; }
+  .score-num { font-size: 28px; font-weight: 700; color: var(--teal-dark); line-height: 1; }
+  .score-label { font-size: 13px; color: var(--teal-deep); line-height: 1.4; }
+  .score-bar-wrap { flex: 1; height: 6px; background: rgba(0,0,0,0.08); border-radius: 3px; overflow: hidden; }
+  .score-bar { height: 100%; background: var(--teal); border-radius: 3px; transition: width 0.3s ease; }
+  .grid-section { margin-top: 6px; }
+  .grid-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .grid-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .grid-nav { display: flex; gap: 4px; }
+  .grid-nav-btn { padding: 4px 10px; border-radius: 12px; border: 0.5px solid var(--border); background: transparent; color: var(--text-muted); font-size: 12px; cursor: pointer; }
+  .grid-table { width: 100%; border-collapse: collapse; }
+  .grid-table th { font-size: 9px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 2px 6px; text-align: center; }
+  .grid-table th.habit-th { text-align: left; padding-left: 0; font-size: 10px; min-width: 90px; max-width: 90px; }
+  .grid-table td { text-align: center; padding: 2px; }
+  .grid-table td.habit-td { text-align: left; padding: 3px 4px 3px 0; font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px; }
+  .grid-dot { width: 18px; height: 18px; border-radius: 4px; margin: 0 auto; background: #EEEEE8; }
+  .grid-dot.done { background: var(--teal); }
+  .grid-dot.today { background: #EEEEE8; border: 2px solid var(--teal); }
+  .grid-dot.today.done { background: var(--teal); border-color: var(--teal); }
+  .grid-day-label { font-size: 9px; color: var(--text-hint); text-align: center; margin-top: 1px; }
+  .week-label { font-size: 10px; font-weight: 600; color: var(--text-hint); text-align: center; padding-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-title">Claudia's wellness plan 🌿</div>
+      <div class="header-sub">With coach Samantha</div>
+    </div>
+  </div>
+  <div class="tab-scroll">
+    <button class="tab active" onclick="show('stretches', this)">Stretches</button>
+    <button class="tab" onclick="show('foam', this)">Foam rolling</button>
+    <button class="tab" onclick="show('workouts', this)">Workouts</button>
+    <button class="tab" onclick="show('fuel', this)">Fuel</button>
+    <button class="tab" onclick="show('daily', this)">Daily habits</button>
+    <button class="tab" onclick="show('tracker', this)">📊 Tracker</button>
+  </div>
+</div>
+
+<div class="scroll-area">
+
+  <!-- STRETCHES -->
+  <div id="stretches" class="section active">
+    <div class="banner">
+      <div class="banner-star">⭐</div>
+      <div class="banner-text"><strong>Start here tonight:</strong> Just 5 minutes of legs up the wall before bed. That's it — one stretch, one win.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Daily hamstring routine</div>
+      <div class="card-sub">5–10 min · pair with walks or evenings</div>
+
+      <div class="stretch-item">
+        <div class="stretch-name"><span class="stretch-dot"></span>Supine hamstring stretch</div>
+        <div class="stretch-desc">Lying on back, loop a strap or towel around one foot, extend leg toward ceiling. Safe and controlled for your hamstring injury.</div>
+        <div class="timer-row">
+          <button class="timer-btn" id="btn-0" onclick="startTimer(0, 90, 'btn-0', 'timer-0')">▶ 90 sec each side</button>
+          <span class="timer-display" id="timer-0"></span>
+        </div>
+      </div>
+
+      <div class="stretch-item">
+        <div class="stretch-name"><span class="stretch-dot"></span>Seated forward fold with support</div>
+        <div class="stretch-desc">Legs extended, bolster or folded blanket on thighs, rest torso forward. No pulling or straining — fully passive.</div>
+        <div class="timer-row">
+          <button class="timer-btn" id="btn-1" onclick="startTimer(1, 60, 'btn-1', 'timer-1')">▶ 60 sec hold</button>
+          <span class="timer-display" id="timer-1"></span>
+        </div>
+      </div>
+
+      <div class="stretch-item">
+        <div class="stretch-name"><span class="stretch-dot"></span>Reclined figure-four</div>
+        <div class="stretch-desc">On back, cross one ankle over opposite knee and let hip relax open. Targets piriformis and outer hip, which compensates for hamstring tightness.</div>
+        <div class="timer-row">
+          <button class="timer-btn" id="btn-2" onclick="startTimer(2, 90, 'btn-2', 'timer-2')">▶ 90 sec each side</button>
+          <span class="timer-display" id="timer-2"></span>
+        </div>
+      </div>
+
+      <div class="stretch-item">
+        <div class="stretch-name"><span class="stretch-dot"></span>Low lunge with bolster</div>
+        <div class="stretch-desc">Addresses hip flexors, which pull on the full hamstring chain when tight. Use a bolster under back knee for support.</div>
+        <div class="timer-row">
+          <button class="timer-btn" id="btn-3" onclick="startTimer(3, 60, 'btn-3', 'timer-3')">▶ 60 sec each side</button>
+          <span class="timer-display" id="timer-3"></span>
+        </div>
+      </div>
+
+      <div class="stretch-item">
+        <div class="stretch-name"><span class="stretch-dot"></span>Legs up the wall (Viparita Karani) <span class="star-pill">⭐ Start here</span></div>
+        <div class="stretch-desc">Sit sideways against a wall, swing legs up. Fully passive and restorative. Great final stretch and evening wind-down. <strong>If you only do one stretch, do this one.</strong></div>
+        <div class="timer-row">
+          <button class="timer-btn" id="btn-4" onclick="startTimer(4, 300, 'btn-4', 'timer-4')">▶ 5 minutes</button>
+          <span class="timer-display" id="timer-4"></span>
+        </div>
+      </div>
+
+      <div class="sammy-tip" style="margin-top:12px;">
+        <p>"We will work on ROM, flexibility and get that tightness relieved — short muscles need to stretch, underactive muscles need to wake up. One step at a time!" — Sammy 💚</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Restorative yoga · twice per week</div>
+      <div class="card-sub">Mon + Wed evenings · or Saturday flex</div>
+      <ul class="checklist">
+        <li><span class="check-dot"></span>Tell the teacher about your hamstring history before every class</li>
+        <li><span class="check-dot"></span>Bring yoga blocks for modified postures</li>
+        <li><span class="check-dot"></span>Yin yoga counts — great job going on Saturday!</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Also explore: TRE</div>
+      <div class="card-sub">Tension & Trauma Releasing Exercises</div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.55;">Sammy recommends TRE as a complement to your hamstring routine. Ask her for specifics at your next session.</p>
+    </div>
+  </div>
+
+  <!-- FOAM ROLLING -->
+  <div id="foam" class="section">
+    <div class="card">
+      <div class="card-title">Foam rolling routine</div>
+      <div class="card-sub">3–5 min · on movement days</div>
+      <div class="sammy-tip">
+        <p>Find a tender point and hold 60–90 sec — don't roll back and forth. Pair this with beet intake to support circulation and blood flow to muscles.</p>
+      </div>
+
+      <div class="stretch-item">
+        <div class="stretch-name"><span class="stretch-dot"></span>IT band · side of thigh</div>
+        <div class="stretch-desc">Roll slowly along the outer thigh. When you find a tender spot, pause and hold. Don't roll continuously.</div>
+        <div class="timer-row">
+          <button class="timer-btn" id="btn-5" onclick="startTimer(5, 90, 'btn-5', 'timer-5')">▶ Hold 60–90 sec per spot</button>
+          <span class="timer-display" id="timer-5"></span>
+        </div>
+      </div>
+
+      <div class="stretch-item">
+        <div class="stretch-name"><span class="stretch-dot"></span>Quads · front of thigh</div>
+        <div class="stretch-desc">Supports hamstring recovery and reduces compensatory tightness. Go slow and breathe through tender points.</div>
+        <div class="timer-row">
+          <button class="timer-btn" id="btn-6" onclick="startTimer(6, 90, 'btn-6', 'timer-6')">▶ Hold 60–90 sec per spot</button>
+          <span class="timer-display" id="timer-6"></span>
+        </div>
+      </div>
+
+      <div class="stretch-item">
+        <div class="stretch-name"><span class="stretch-dot"></span>Glutes + upper back</div>
+        <div class="stretch-desc">Add after strength days especially. "Your body is going to thank you tomorrow!" — Sammy</div>
+        <div class="timer-row">
+          <button class="timer-btn" id="btn-7" onclick="startTimer(7, 90, 'btn-7', 'timer-7')">▶ 90 sec each area</button>
+          <span class="timer-display" id="timer-7"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Order of operations on movement days</div>
+      <ul class="checklist" style="margin-top:4px;">
+        <li><span class="check-dot"></span>Foam roll first (3–5 min)</li>
+        <li><span class="check-dot"></span>Then do your hamstring stretches (5–10 min)</li>
+        <li><span class="check-dot"></span>Legs up the wall last — evening wind-down</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- WORKOUTS -->
+  <div id="workouts" class="section">
+    <div class="sammy-tip" style="margin-bottom:12px;border-radius:var(--radius-sm);">
+      <p>Protect 5–7pm weekdays and 10am–12pm weekends. This block is yours — workout, walk with your pup, stretch, or rest. Just keep it protected!</p>
+    </div>
+
+    <div class="day-grid">
+      <div class="day-card highlight">
+        <div class="day-label">Monday</div>
+        <div class="day-activity">Lower body strength</div>
+        <div class="day-note">5–7pm window</div>
+      </div>
+      <div class="day-card">
+        <div class="day-label">Tuesday–Friday</div>
+        <div class="day-activity">Walk + stretch + foam roll</div>
+        <div class="day-note">5–10 min after walk</div>
+      </div>
+      <div class="day-card highlight">
+        <div class="day-label">Saturday</div>
+        <div class="day-activity">Full body strength</div>
+        <div class="day-note">10am–12pm window</div>
+      </div>
+      <div class="day-card">
+        <div class="day-label">Flex days</div>
+        <div class="day-activity">Yoga, rest, or WNBA</div>
+        <div class="day-note">Life is supposed to be fun</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Why you felt rough at the start of Fit House</div>
+      <div class="card-sub">Totally normal — here's the science</div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">In the first few minutes, your body uses slow-twitch fibers — small, endurance-based, not very powerful. As you keep going, fast-twitch fibers kick in and share the load.</p>
+      <div class="tip-box" style="margin-top:8px;">
+        <p>Think of it like starting a job with 2 employees, then 10 more show up. Give it 5–10 minutes. It gets better every session, and the more consistently you train, the faster that transition happens.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Daily check-ins for Sammy</div>
+      <div class="card-sub">Send screenshots each morning in the app</div>
+      <div class="metric-row">
+        <div class="metric-card">
+          <div class="metric-label">Resting HR</div>
+          <div class="metric-value">—<span class="metric-unit"> bpm</span></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Avg HR</div>
+          <div class="metric-value">—<span class="metric-unit"> bpm</span></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">HRV</div>
+          <div class="metric-value">—<span class="metric-unit"> ms</span></div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--text-hint);margin-top:8px;">These numbers help Sammy see how your body is recovering and will guide your week together.</p>
+    </div>
+  </div>
+
+  <!-- FUEL -->
+  <div id="fuel" class="section">
+    <div class="card">
+      <div class="card-title">Pre-workout fuel</div>
+      <div class="card-sub">Snack 30–60 min before · meal 1–2 hrs before</div>
+      <div class="sammy-tip">
+        <p>Easy to digest is what's important — you want fuel without feeling heavy.</p>
+      </div>
+      <div class="pill-list">
+        <span class="pill">Rice cake + light protein shake</span>
+        <span class="pill">Greek yogurt + berries</span>
+        <span class="pill">Banana + almond butter</span>
+        <span class="pill">Cottage cheese + pineapple</span>
+        <span class="pill">Honey + water</span>
+        <span class="pill">Crackers + turkey</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Post-workout recovery</div>
+      <div class="card-sub">Within 1 hour · protein + carbs</div>
+      <div class="sammy-tip">
+        <p>This is where recovery happens — what your muscles are waiting for. The 4-day leg soreness happened because this window wasn't filled.</p>
+      </div>
+      <div class="pill-list">
+        <span class="pill">Protein shake + fruit</span>
+        <span class="pill">Chicken + rice</span>
+        <span class="pill">Eggs + toast</span>
+        <span class="pill">Tuna + rice cakes + olive oil</span>
+        <span class="pill">Turkey roll-ups + cheese</span>
+        <span class="pill">Small smoothie + creatine</span>
+        <span class="pill">Nuts + fruit bridge snack</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Sunday meal prep</div>
+      <div class="card-sub">Two pans, one session · cook once, eat all week</div>
+      <div class="tip-box" style="margin-bottom:10px;">
+        <p>Sweet potatoes + quinoa do triple duty across all three meals. Make a big batch and split in half — half for breakfast, half for dinner.</p>
+      </div>
+
+      <div class="section-label" style="margin-top:4px;">Breakfast rotation</div>
+      <div style="font-size:13px;color:var(--text);line-height:1.65;">
+        <div style="margin-bottom:10px;"><span class="meal-badge badge-teal">Option 1 · start here</span><br>Ground turkey · sweet potatoes · sautéed kale · bone broth · mild kimchi</div>
+        <div style="margin-bottom:10px;"><span class="meal-badge badge-amber">Option 2</span><br>Breakfast burrito · eggs · bacon · potatoes · spinach · asparagus · broccoli</div>
+        <div><span class="meal-badge badge-purple">Option 3</span><br>High-protein lox bagel (Dave's Killer Bread) or sourdough · cream cheese · pickled red onions · capers · cucumber · dill · 1–2 hard-boiled eggs on side</div>
+      </div>
+
+      <div class="divider" style="margin-top:12px;"></div>
+      <div class="section-label" style="margin-top:8px;">Lunch</div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Salmon jar salad: canned salmon · quinoa · raw asparagus · massaged kale · pickled red onions · jalapeño dressing. Assemble in jars minus dressing — grab and go all week.</p>
+
+      <div class="divider"></div>
+      <div class="section-label">Dinner</div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Bowls: pre-shredded chicken · quick-cook quinoa · spinach · diced roasted sweet potatoes · pesto · finishing olive oil.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Protein powder picks (21g+)</div>
+      <div class="card-sub">No fillers or additives — Sammy approved</div>
+      <div class="pill-list">
+        <span class="pill">Equip Prime Protein (beef isolate)</span>
+        <span class="pill">Thorne Whey Protein Isolate</span>
+        <span class="pill">Naked Whey</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAILY HABITS -->
+  <div id="daily" class="section">
+    <div class="card">
+      <div class="card-title">Morning stack</div>
+      <div class="card-sub">Right after your daily walk</div>
+      <ul class="checklist">
+        <li><span class="check-dot"></span>Creatine in morning water immediately after walk</li>
+        <li><span class="check-dot"></span>Smoothie: 2 tbsp ground flaxseed · Ancient Nutrition collagen · protein powder · ¼–½ fresh lemon with zest</li>
+        <li><span class="check-dot"></span>High protein before ADHD meds — aim for 21g+</li>
+        <li><span class="check-dot"></span>Beet powder (paused while Zoloft dose at 75mg normalizes — check with Sammy)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Evening wind-down</div>
+      <div class="card-sub">Replace wine with an intentional ritual</div>
+      <ul class="checklist">
+        <li><span class="check-dot"></span>Evening tonic: 1 tbsp apple cider vinegar as a nightly wind-down</li>
+        <li><span class="check-dot"></span>Super Beets Chew on yoga days — keep in fanny pack</li>
+        <li><span class="check-dot"></span>Sticky note on wine/pantry: "Not right now, saving for the weekend"</li>
+        <li><span class="check-dot"></span>Journal on bedside table to process the urge or wind down</li>
+        <li><span class="check-dot"></span>Shroomie app on phone for mindful drinking support</li>
+      </ul>
+      <div class="section-label">Pantry staples to keep stocked</div>
+      <div class="pill-list">
+        <span class="pill">CBD seltzers</span>
+        <span class="pill">NA seltzers</span>
+        <span class="pill">Cold-pressed juice</span>
+        <span class="pill">Golden milk</span>
+        <span class="pill">Dandelion tea</span>
+        <span class="pill">Three Spirit nightcaps</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Sammy's vagus nerve reset</div>
+      <div class="card-sub">Instant nervous system off switch — no app required</div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.55;margin-bottom:10px;">Splash cold water on your face or run cold water on the back of your neck for 30 seconds. Or use a frozen face roller on the sides and back of your neck. Also supports easier digestion.</p>
+      <div class="timer-row">
+        <button class="timer-btn" id="btn-8" onclick="startTimer(8, 30, 'btn-8', 'timer-8')">▶ 30 sec timer</button>
+        <span class="timer-display" id="timer-8"></span>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:var(--teal);">
+      <div class="card-title">Sammy's daily question</div>
+      <div class="big-q">"How can I do just 1% better for myself today?"</div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.5;margin-top:6px;">Not a full overhaul — just 1%. The small, bite-sized steps are what creates real change.</p>
+    </div>
+  </div>
+
+  <!-- TRACKER -->
+  <div id="tracker" class="section">
+    <div class="card">
+      <div class="today-score">
+        <div>
+          <div class="score-num" id="score-num">0</div>
+          <div style="font-size:10px;color:var(--teal-dark);margin-top:2px;">of <span id="score-total">8</span> today</div>
+        </div>
+        <div style="flex:1;">
+          <div class="score-bar-wrap"><div class="score-bar" id="score-bar" style="width:0%"></div></div>
+          <div class="score-label" id="score-msg" style="margin-top:6px;">Tap anything you've done today ✨</div>
+        </div>
+      </div>
+
+      <div class="tracker-date" id="tracker-date"></div>
+
+      <div id="habit-list"></div>
+    </div>
+
+    <div class="card grid-section">
+      <div class="grid-header">
+        <div class="grid-title">History</div>
+        <div class="grid-nav">
+          <button class="grid-nav-btn" onclick="shiftWeek(-1)">← Earlier</button>
+          <button class="grid-nav-btn" onclick="shiftWeek(1)">Later →</button>
+        </div>
+      </div>
+      <div id="habit-grid"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function show(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  document.querySelector('.scroll-area').scrollTop = 0;
+}
+
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playDone() {
+  try {
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+    const notes = [523.25, 659.25, 783.99, 1046.5];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const t = ctx.currentTime + i * 0.18;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.28, t + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+      osc.start(t);
+      osc.stop(t + 0.35);
+    });
+  } catch(e) {}
+}
+
+const timers = {};
+const btnOrigText = {};
+function startTimer(id, seconds, btnId, displayId) {
+  const btn = document.getElementById(btnId);
+  const display = document.getElementById(displayId);
+  if (!btnOrigText[btnId]) btnOrigText[btnId] = btn.textContent;
+  if (timers[id]) {
+    clearInterval(timers[id]);
+    timers[id] = null;
+    btn.classList.remove('running');
+    btn.textContent = btnOrigText[btnId];
+    display.textContent = '';
+    return;
+  }
+  try { getAudioCtx(); } catch(e) {}
+  let remaining = seconds;
+  btn.classList.add('running');
+  btn.textContent = '⏸ ' + btnOrigText[btnId].replace(/^[▶⏸]\s*/, '');
+  function tick() {
+    if (remaining <= 0) {
+      clearInterval(timers[id]);
+      timers[id] = null;
+      btn.classList.remove('running');
+      btn.classList.add('done');
+      btn.textContent = '✓ Done!';
+      display.textContent = '';
+      playDone();
+      setTimeout(() => {
+        btn.classList.remove('done');
+        btn.textContent = btnOrigText[btnId];
+      }, 3000);
+      return;
+    }
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    display.textContent = m > 0 ? m + 'm ' + String(s).padStart(2,'0') + 's' : s + 's';
+    remaining--;
+  }
+  tick();
+  timers[id] = setInterval(tick, 1000);
+}
+// ── TRACKER ──────────────────────────────────────────────
+const HABITS = [
+  { id: 'walk',     emoji: '🐾', name: 'Daily walk',           note: 'With your pup' },
+  { id: 'morning',  emoji: '🌅', name: 'Morning stack',        note: 'Creatine + smoothie' },
+  { id: 'stretch',  emoji: '🧘', name: 'Evening stretch',      note: 'Legs up the wall minimum' },
+  { id: 'foam',     emoji: '🟢', name: 'Foam rolling',         note: '3–5 min on movement days' },
+  { id: 'yoga',     emoji: '🪷', name: 'Restorative yoga',     note: 'Mon/Wed or Sat flex' },
+  { id: 'workout',  emoji: '🏋️', name: 'Strength workout',     note: 'Mon lower body · Sat full body' },
+  { id: 'tonic',    emoji: '🍵', name: 'Evening tonic',        note: 'ACV wind-down ritual' },
+  { id: 'nawine',   emoji: '🫧', name: 'No wine / NA swap',    note: 'CBD seltzer, golden milk, etc.' },
+];
+
+const STORAGE_KEY = 'claudia_habit_log_v1';
+let weekOffset = 0; // 0 = current week
+
+function todayKey() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function loadLog() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveLog(log) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(log));
+}
+
+function toggleHabit(habitId) {
+  const log = loadLog();
+  const key = todayKey();
+  if (!log[key]) log[key] = {};
+  log[key][habitId] = !log[key][habitId];
+  if (!log[key][habitId]) delete log[key][habitId];
+  if (Object.keys(log[key]).length === 0) delete log[key];
+  saveLog(log);
+  renderToday();
+  renderGrid();
+}
+
+function renderToday() {
+  const log = loadLog();
+  const key = todayKey();
+  const todayData = log[key] || {};
+  const total = HABITS.length;
+  const done = HABITS.filter(h => todayData[h.id]).length;
+
+  document.getElementById('score-num').textContent = done;
+  document.getElementById('score-total').textContent = total;
+  document.getElementById('score-bar').style.width = Math.round(done/total*100) + '%';
+
+  const msgs = ["Tap anything you've done today ✨", "Great start — keep going! 💪", "You're building momentum! 🌱", "Halfway there — Sammy would be proud 🙌", "So close! Almost a perfect day ⭐", "Perfect day!! Sammy is celebrating you! 🎉🎉"];
+  const msgIdx = done === 0 ? 0 : done <= 2 ? 1 : done <= 4 ? 2 : done <= 5 ? 3 : done <= 7 ? 4 : 5;
+  document.getElementById('score-msg').textContent = msgs[Math.min(msgIdx, msgs.length-1)];
+
+  const d = new Date();
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('tracker-date').textContent = days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate();
+
+  const list = document.getElementById('habit-list');
+  list.innerHTML = HABITS.map(h => `
+    <div class="habit-row" onclick="toggleHabit('${h.id}')">
+      <div class="habit-left">
+        <div class="habit-emoji">${h.emoji}</div>
+        <div>
+          <div class="habit-name">${h.name}</div>
+          <div class="habit-note">${h.note}</div>
+        </div>
+      </div>
+      <div class="habit-check ${todayData[h.id] ? 'checked' : ''}"></div>
+    </div>
+  `).join('');
+}
+
+function getWeekDates(offset) {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((day + 6) % 7) + offset * 7);
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    dates.push(d);
+  }
+  return dates;
+}
+
+function dateToKey(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function shiftWeek(dir) {
+  weekOffset += dir;
+  if (weekOffset > 0) weekOffset = 0;
+  renderGrid();
+}
+
+function renderGrid() {
+  const log = loadLog();
+  const dates = getWeekDates(weekOffset);
+  const today = todayKey();
+  const dayLabels = ['M','T','W','T','F','S','S'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  const startD = dates[0];
+  const endD = dates[6];
+  const rangeLabel = months[startD.getMonth()] + ' ' + startD.getDate() + ' – ' + months[endD.getMonth()] + ' ' + endD.getDate();
+
+  let html = `<div style="font-size:11px;color:var(--text-hint);margin-bottom:8px;text-align:center;">${rangeLabel}</div>`;
+  html += '<table class="grid-table"><thead><tr><th class="habit-th">Habit</th>';
+  dates.forEach((d, i) => { html += `<th>${dayLabels[i]}<br><span style="font-weight:400;">${d.getDate()}</span></th>`; });
+  html += '</tr></thead><tbody>';
+
+  HABITS.forEach(h => {
+    html += `<tr><td class="habit-td">${h.emoji} ${h.name}</td>`;
+    dates.forEach(d => {
+      const k = dateToKey(d);
+      const done = log[k] && log[k][h.id];
+      const isToday = k === today;
+      const isFuture = k > today;
+      let cls = 'grid-dot';
+      if (isToday) cls += ' today';
+      if (done) cls += ' done';
+      html += `<td><div class="${cls}" style="${isFuture ? 'opacity:0.3' : ''}"></div></td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+
+  document.getElementById('habit-grid').innerHTML = html;
+}
+
+function initTracker() {
+  renderToday();
+  renderGrid();
+}
+
+// Re-render tracker when tab is opened
+const origShow = window.show;
+window.show = function(id, el) {
+  origShow(id, el);
+  if (id === 'tracker') { weekOffset = 0; renderToday(); renderGrid(); }
+};
+
+initTracker();
+</script>
+</body>
+</html>
